@@ -1,11 +1,9 @@
 package jm.task.core.jdbc.dao;
 
+import static jm.task.core.jdbc.util.Util.*;
 import jm.task.core.jdbc.model.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-
-import static jm.task.core.jdbc.util.Util.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +18,9 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
-        try(Session session = sessionFactory.openSession()) {
+        Session session = sessionFactory.openSession();
+
+        try (session) {
             session.beginTransaction();
 
             session.createSQLQuery(
@@ -28,17 +28,23 @@ public class UserDaoHibernateImpl implements UserDao {
             ).executeUpdate();
 
             session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
         }
     }
 
     @Override
     public void dropUsersTable() {
-        try (Session session = sessionFactory.openSession()) {
+        Session session = sessionFactory.openSession();
+
+        try (session) {
             session.beginTransaction();
 
             session.createSQLQuery("DROP TABLE IF EXISTS Users").executeUpdate();
 
             session.getTransaction().commit();
+        }  catch (Exception e) {
+            session.getTransaction().rollback();
         }
     }
 
@@ -67,13 +73,16 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
+        Session session = sessionFactory.openSession();
 
-        try (Session session = sessionFactory.openSession()) {
+        try (session) {
             session.beginTransaction();
 
             users = session.createQuery("FROM User").getResultList();
 
             session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
         }
 
         return users;
@@ -81,12 +90,16 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
-        try (Session session = sessionFactory.openSession()) {
+        Session session = sessionFactory.openSession();
+
+        try (session) {
             session.beginTransaction();
 
             session.createQuery("DELETE FROM User").executeUpdate();
 
             session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
         }
     }
 }
